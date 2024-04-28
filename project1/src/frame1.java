@@ -9,12 +9,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+
+
 /**
  *
  * 
  */
 public class frame1 extends javax.swing.JFrame {
 
+     private Main.Wrapper<HuffmanTree> huffmanTreeWrapper;
+     
+
+    public frame1(Main.Wrapper<HuffmanTree> huffmanTreeWrapper) {
+        this.huffmanTreeWrapper = huffmanTreeWrapper;
+        initComponents();
+        
+    }
     /**
      * Creates new form frame1
      */
@@ -22,7 +32,7 @@ public class frame1 extends javax.swing.JFrame {
         initComponents();
         
     }
-     
+    
     
     public JButton getEncodeButton() {
         return encodeButton;
@@ -64,6 +74,8 @@ public class frame1 extends javax.swing.JFrame {
 public JButton getSaveHuffmanButton() {
     return save_huffman;
 }
+
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -144,6 +156,11 @@ public JButton getSaveHuffmanButton() {
         });
 
         exit.setText("Exit");
+        exit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exitActionPerformed(evt);
+            }
+        });
 
         encodeButton.setText("Encode");
         encodeButton.addActionListener(new java.awt.event.ActionListener() {
@@ -267,20 +284,19 @@ public JButton getSaveHuffmanButton() {
     private void decodeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decodeButtonActionPerformed
         
           String encoded = getEncodedText();
-        HuffmanTree huffmanTree = new HuffmanTree(Collections.emptyMap());
-        String decodedText = huffmanTree.decode(encoded);
-        setPlainText(decodedText);    
-        
+    HuffmanTree huffmanTree = huffmanTreeWrapper.value; // Use the HuffmanTree instance from huffmanTreeWrapper
+    String decodedText = huffmanTree.decode(encoded);
+    setPlainText(decodedText);    
+        Encoded.setText("");
     }//GEN-LAST:event_decodeButtonActionPerformed
 
     private void encodeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encodeButtonActionPerformed
         
-        String plaintext = getPlainText();
-        HuffmanTree huffmanTree = new HuffmanTree(Collections.emptyMap());
-        String encodedText = huffmanTree.encode(plaintext);
-        setEncodedText(encodedText);
-        
-        
+       String plaintext = getPlainText();
+       HuffmanTree huffmantree = huffmanTreeWrapper.value;
+       String encodedText = huffmantree.encode(plaintext);
+       setEncodedText(encodedText);
+       Plain_text.setText("");
     }//GEN-LAST:event_encodeButtonActionPerformed
 
     private void save_huffmanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_save_huffmanActionPerformed
@@ -289,7 +305,7 @@ public JButton getSaveHuffmanButton() {
     }//GEN-LAST:event_save_huffmanActionPerformed
 
     private void load_huffmanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_load_huffmanActionPerformed
-        output_feild.setText("hello5");
+    
     }//GEN-LAST:event_load_huffmanActionPerformed
 
     private void EncodedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EncodedActionPerformed
@@ -298,6 +314,10 @@ public JButton getSaveHuffmanButton() {
         String decodedMessage = huffmanTree.decode(encodedMessage);
         Plain_text.setText(decodedMessage);
     }//GEN-LAST:event_EncodedActionPerformed
+
+    private void exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_exitActionPerformed
 
     /**
      * @param args the command line arguments

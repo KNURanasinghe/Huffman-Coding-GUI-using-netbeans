@@ -8,10 +8,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.TreeMap;
+import java.util.Scanner;
 import java.util.Formatter;
 import java.io.File;
-
 
 class Node implements java.io.Serializable {
     char character;
@@ -21,6 +20,19 @@ class Node implements java.io.Serializable {
 
     Node(char character, int frequency) {
         this.character = character;
+        this.frequency = frequency;
+        left = right = null;
+    }
+
+    Node(int label, String s, int frequency) {
+        this.label = label;
+        if (s.equals("none")) {
+            character = '\0';
+        } else if (s.equals("space")) {
+            character = ' ';
+        } else {
+            character = s.charAt(0);
+        }
         this.frequency = frequency;
         left = right = null;
     }
@@ -61,6 +73,38 @@ class HuffmanTree {
         label(root);
     }
 
+    HuffmanTree() {
+        root = null;
+        labelCount = 1;
+    }
+
+    public void insert(Node newNode) {
+        if (root == null) {
+            root = newNode;
+            return;
+        }
+
+        Node current = root;
+        Node parent = null;
+        while (true) {
+            parent = current;
+            if (newNode.label < current.label) {
+                current = current.left;
+                if (current == null) {
+                    parent.left = newNode;
+                    return;
+                }
+            } else {
+                current = current.right;
+                if (current == null) {
+                    parent.right = newNode;
+                    return;
+                }
+            }
+        }
+    }
+
+  
     private int label(Node node) {
         if (node != null) {
             int next = label(node.left);
@@ -71,56 +115,52 @@ class HuffmanTree {
         return labelCount;
     }
 
-
-public void save(String fileName) {
-    try (Formatter formatter = new Formatter(fileName)) {
-        System.out.println("Saving Huffman tree to file: " + fileName);
-        save(root, formatter);
-        System.out.println("Huffman tree saved successfully.");
-    } catch (IOException e) {
-        System.err.println("Error saving Huffman tree to file: " + e.getMessage());
-        e.printStackTrace();
+    public void save(String fileName) {
+        try (Formatter formatter = new Formatter(fileName)) {
+            System.out.println("Saving Huffman tree to file: " + fileName);
+            save(root, formatter);
+            System.out.println("Huffman tree saved successfully.");
+        } catch (IOException e) {
+            System.err.println("Error saving Huffman tree to file: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-}
 
-private void save(Node node, Formatter formatter) {
-    if (node != null) {
-        System.out.println("Saving node: " + node.label + " " + node.getCharacterAsString() + " " + node.frequency);
-        formatter.format("%d %s %d%n", node.label, node.getCharacterAsString(), node.frequency);
-        save(node.left, formatter);
-        save(node.right, formatter);
+    private void save(Node node, Formatter formatter) {
+        if (node != null) {
+            System.out.println("Saving node: " + node.label + " " + node.getCharacterAsString() + " " + node.frequency);
+            formatter.format("%d %s %d%n", node.label, node.getCharacterAsString(), node.frequency);
+            save(node.left, formatter);
+            save(node.right, formatter);
+        }
     }
-}
-
-
 
     @Override
-public String toString() {
-    StringBuilder sb = new StringBuilder();
-    toString(0, "root:", root, sb);
-    return sb.toString();
-}
-
-private void toString(int level, String n, Node node, StringBuilder sb) {
-    if (node == null) {
-        return;
-    }
-    for (int i = 0; i < level; i++) {
-        sb.append("  ");
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        toString(0, "root:", root, sb);
+        return sb.toString();
     }
 
-    if (node.character != '\0') {
-        sb.append(String.format("%s <%c, %d>%n", n, node.character, node.frequency));
-    } else {
-        sb.append(String.format("%s <%d>%n", n, node.frequency));
-    }
+    private void toString(int level, String n, Node node, StringBuilder sb) {
+        if (node == null) {
+            return;
+        }
+        for (int i = 0; i < level; i++) {
+            sb.append("  ");
+        }
 
-    if (node.left != null || node.right != null) {
-        toString(level + 1, "left: ", node.left, sb);
-        toString(level + 1, "right:", node.right, sb);
-    }
-}
+        if (node.character != '\0') {
+            sb.append(String.format("%s <%c, %d>%n", n, node.character, node.frequency));
+        } else {
+            sb.append(String.format("%s <%d>%n", n, node.frequency));
+        }
 
+        if (node.left != null || node.right != null) {
+            toString(level + 1, "left: ", node.left, sb);
+            toString(level + 1, "right:", node.right, sb);
+        }
+    }
 
     private void generateCodesHelper(Node root, String code, Map<Character, String> codes) {
         if (root == null) return;
@@ -152,10 +192,6 @@ private void toString(int level, String n, Node node, StringBuilder sb) {
         Node current = root;
         for (char c : encodedMessage.toCharArray()) {
             if (current == null) {
-                // Handle the case where the current node is null
-                // This might happen if the encoded message contains characters not in the Huffman tree
-                // You can choose to throw an exception or handle it according to your application's logic
-                // For simplicity, I'll append a placeholder character to the decoded message
                 decoded.append('?');
                 continue;
             }
@@ -188,6 +224,7 @@ private void toString(int level, String n, Node node, StringBuilder sb) {
 }
 
 public class Main {
+    private static frame1 gui;
     static class Wrapper<T> {
         T value;
 
@@ -197,57 +234,70 @@ public class Main {
     }
 
     private static Wrapper<HuffmanTree> huffmanTreeWrapper = new Wrapper<>(null);
-    private static frame1 gui;
+    
+    
 
     public static void main(String[] args) {
         java.awt.EventQueue.invokeLater(() -> {
-            gui = new frame1();
+            gui = new frame1(huffmanTreeWrapper);
+            
             gui.setVisible(true);
+            java.awt.EventQueue.invokeLater(() -> {
 
-            gui.getEncodeButton().addActionListener((ActionEvent evt) -> {
-                String inputMessage = gui.getPlainText();
-                Map<Character, Integer> frequencyMap = getFrequencyMap(inputMessage);
-                HuffmanTree huffmanTree = new HuffmanTree(frequencyMap);
-                String encodedMessage = huffmanTree.encode(inputMessage);
-                gui.setEncodedText(encodedMessage);
+                gui.getEncodeButton().addActionListener((ActionEvent evt) -> {
+                    String inputMessage = gui.getPlainText();
+                    Map<Character, Integer> frequencyMap = getFrequencyMap(inputMessage);
+                    if(inputMessage.length()==0){
+                        gui.setOutputText("enter a plain text string to be encoded");
+                    }else{
+                         gui.setOutputText("");
+                    }
+                    HuffmanTree huffmanTree = new HuffmanTree(frequencyMap);
+                    String encodedMessage = huffmanTree.encode(inputMessage);
+                    gui.setEncodedText(encodedMessage);
+                     System.out.print("input msg"+ inputMessage);
+                    huffmanTreeWrapper.value = huffmanTree;
+                    System.out.print(encodedMessage);
+                });
+               
 
-                // Update the values in the wrapper objects
-                huffmanTreeWrapper.value = huffmanTree;
-            });
+                gui.getFrequencyButton().addActionListener((ActionEvent evt) -> {
+                    String inputMessage = gui.getPlainText();
+                    Map<Character, Integer> frequencyMap = getFrequencyMap(inputMessage);
+                    gui.setFrequencyText(getFrequencyText(frequencyMap));
+                });
 
-            gui.getFrequencyButton().addActionListener((ActionEvent evt) -> {
-                String inputMessage = gui.getPlainText();
-                Map<Character, Integer> frequencyMap = getFrequencyMap(inputMessage);
-                gui.setFrequencyText(getFrequencyText(frequencyMap));
-            });
+                gui.getDisplayHuffmanTreeButton().addActionListener((ActionEvent evt) -> {
+                    if (huffmanTreeWrapper.value != null) {
+                        String huffmanTreeString = huffmanTreeWrapper.value.toString();
+                        gui.setOutputText(huffmanTreeString);
+                    } else {
+                        gui.setOutputText("Please enter a message to display the Huffman tree.");
+                    }
+                });
 
-            gui.getDisplayHuffmanTreeButton().addActionListener((ActionEvent evt) -> {
-                if (huffmanTreeWrapper.value != null) {
-                    String huffmanTreeString = huffmanTreeWrapper.value.toString();
-                    gui.setOutputText(huffmanTreeString);
-                } else {
-                    gui.setOutputText("Please enter a message to display the Huffman tree.");
-                }
-            });
+                gui.getDecodeButton().addActionListener((ActionEvent evt) -> {
+                    if (huffmanTreeWrapper.value != null) {
+                        String encodedMessage = gui.getEncodedText();
+                        String decodedMessage = huffmanTreeWrapper.value.decode(encodedMessage);
+                     
+                        gui.setPlainText(decodedMessage);
+                        System.out.print(decodedMessage);
+                    } else {
+                        gui.setPlainText("Please encode a message first.");
+                    }
+                    
+                });
 
-            gui.getDecodeButton().addActionListener((ActionEvent evt) -> {
-                if (huffmanTreeWrapper.value != null) {
-                    String encodedMessage = gui.getEncodedText();
-                    String decodedMessage = huffmanTreeWrapper.value.decode(encodedMessage);
-                    gui.setPlainText(decodedMessage);
-                } else {
-                    gui.setPlainText("Please encode a message first.");
-                }
-            });
-
-            gui.getSaveHuffmanButton().addActionListener((ActionEvent evt) -> {
-                saveHuffmanTreeToFile();
+                gui.getSaveHuffmanButton().addActionListener((ActionEvent evt) -> {
+                    saveHuffmanTreeToFile();
+                });
             });
         });
     }
 
     public static void saveHuffmanTreeToFile() {
-        String fileName = "a/huffman_tree.txt"; // Specify the file name and directory
+        String fileName = "a/tree.txt";//to save the file add the path here otherwise saving is not work
         if (huffmanTreeWrapper.value != null) {
             try {
                 huffmanTreeWrapper.value.save(fileName);
