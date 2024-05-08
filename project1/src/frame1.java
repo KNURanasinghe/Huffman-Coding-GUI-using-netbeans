@@ -7,6 +7,13 @@ import javax.swing.JButton;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.ObjectInputStream;
+
+
 
 
 
@@ -75,6 +82,21 @@ public JButton getSaveHuffmanButton() {
     return save_huffman;
 }
 
+ public JButton getLoadHuffmanButton() {
+        return load_huffman;
+    }
+private boolean isValidBinaryString(String str) {
+    for (char c : str.toCharArray()) {
+        if (c != '0' && c != '1') {
+            return false;
+        }
+    }
+    return true;
+}
+
+  
+
+
 
 
     /**
@@ -105,6 +127,12 @@ public JButton getSaveHuffmanButton() {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel2.setText("Plain text string");
+
+        Plain_text.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Plain_textActionPerformed(evt);
+            }
+        });
 
         jLabel3.setText("Encoded text string");
 
@@ -284,10 +312,26 @@ public JButton getSaveHuffmanButton() {
     private void decodeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_decodeButtonActionPerformed
         
           String encoded = getEncodedText();
-    HuffmanTree huffmanTree = huffmanTreeWrapper.value; // Use the HuffmanTree instance from huffmanTreeWrapper
-    String decodedText = huffmanTree.decode(encoded);
-    setPlainText(decodedText);    
-        Encoded.setText("");
+           if (huffmanTreeWrapper.value != null) {
+               if(encoded.isEmpty()){
+                            
+                    output_feild.setText("Please Input Valied binary code.");
+                }
+                HuffmanTree huffmanTree = huffmanTreeWrapper.value; // Use the HuffmanTree instance from huffmanTreeWrapper
+                String decodedText = huffmanTree.decode(encoded);
+                setPlainText(decodedText); 
+   
+                if (isValidBinaryString(encoded)) {
+                    setPlainText(decodedText);
+                } else {
+                    output_feild.setText("Decoding error: Invalid characters found in the decoded message.");
+                    setPlainText(""); // Clear the plain text field
+                }
+           }else {
+                setPlainText("Please encode a message first.");
+                setOutputText("");
+            }
+            Encoded.setText("");
     }//GEN-LAST:event_decodeButtonActionPerformed
 
     private void encodeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_encodeButtonActionPerformed
@@ -305,7 +349,7 @@ public JButton getSaveHuffmanButton() {
     }//GEN-LAST:event_save_huffmanActionPerformed
 
     private void load_huffmanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_load_huffmanActionPerformed
-    
+       
     }//GEN-LAST:event_load_huffmanActionPerformed
 
     private void EncodedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EncodedActionPerformed
@@ -318,6 +362,10 @@ public JButton getSaveHuffmanButton() {
     private void exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitActionPerformed
         System.exit(0);
     }//GEN-LAST:event_exitActionPerformed
+
+    private void Plain_textActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_Plain_textActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_Plain_textActionPerformed
 
     /**
      * @param args the command line arguments
